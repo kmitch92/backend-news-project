@@ -1,4 +1,8 @@
-const { fetchTopics, fetchArticleById } = require("../models/model");
+const {
+  fetchTopics,
+  fetchArticleById,
+  updateArticleById,
+} = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -12,14 +16,22 @@ exports.getTopics = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
   const articleId = req.params;
-  console.log(articleId, "articleId @ controller in");
   fetchArticleById(articleId)
     .then((article) => {
-      console.log(article, "article @ controller out");
       res.status(200).send({ article });
     })
     .catch((err) => {
-      console.log(err, "error came back to controller");
+      next(err);
+    });
+};
+
+exports.patchArticleById = (req, res, next) => {
+  const articleId = req.params;
+  updateArticleById(articleId, req.body)
+    .then((updatedArticle) => {
+      res.status(200).send({ updatedArticle });
+    })
+    .catch((err) => {
       next(err);
     });
 };
