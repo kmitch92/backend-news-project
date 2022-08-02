@@ -77,10 +77,9 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe.only("PATCH /api/articles/:article_id", () => {
+describe("PATCH /api/articles/:article_id", () => {
   test("should respond with status code:200 and the updated article when a successful patch request is made. This endpoint increments the votes on the article: the votes should be incremented by the passed amount", () => {
     const voteIncrementer = { inc_votes: 7 };
-
     return request(app)
       .patch("/api/articles/2")
       .send(voteIncrementer)
@@ -92,7 +91,6 @@ describe.only("PATCH /api/articles/:article_id", () => {
 
   test("should respond with a status code:400 when passed an invalid article_id type ", () => {
     const voteIncrementer = { inc_votes: 7 };
-
     return request(app)
       .patch("/api/articles/two")
       .send(voteIncrementer)
@@ -102,16 +100,25 @@ describe.only("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  //   test("should respond with a status: 404 when passed a valid but non-existent id", () => {
-  //     const voteIncrementer = { inc_votes: 7 };
+  test("should respond with a status code:404 when passed a valid but non-existent id", () => {
+    const voteIncrementer = { inc_votes: 7 };
+    return request(app)
+      .patch("/api/articles/200")
+      .send(voteIncrementer)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article Not Found");
+      });
+  });
 
-  //     return request(app)
-  //       .patch("/api/articles/200")
-  //       .send(voteIncrementer)
-  //       .expect(404)
-  //       .then(({ body }) => {
-  //         console.log(body);
-  //         expect(body.msg).toBe("Article Not Found");
-  //       });
-  //   });
+  test("should respond with a status code:400 if passed an incorrect argument object", () => {
+    const voteIncrementer = { fail_inc_votes: 7 };
+    return request(app)
+      .patch("/api/articles/2")
+      .send(voteIncrementer)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Request Body");
+      });
+  });
 });

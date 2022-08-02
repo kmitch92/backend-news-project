@@ -29,7 +29,6 @@ exports.patchArticleById = (req, res, next) => {
   const articleId = req.params;
   updateArticleById(articleId, req.body)
     .then((updatedArticle) => {
-      console.log(updatedArticle, "returned to  controller");
       res.status(200).send({ updatedArticle });
     })
     .catch((err) => {

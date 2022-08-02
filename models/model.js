@@ -20,28 +20,19 @@ exports.fetchArticleById = async (id) => {
 };
 
 exports.updateArticleById = async (articleId, newVoteInfo) => {
+  if (!newVoteInfo.hasOwnProperty("inc_votes")) {
+    return Promise.reject({ status: 400, msg: "Invalid Request Body" });
+  }
   const newVote = newVoteInfo.inc_votes;
-
-  console.log(newVote);
 
   const articleBeforeUpdate = await db.query(
     "SELECT * FROM articles WHERE article_id = $1;",
     [articleId.article_id]
   );
 
-  //   let articleBeforeUpdate;
-
-  //   try {
-  //     articleBeforeUpdate = await db.query(
-  //       "SELECT * FROM articles WHERE article_id = $1;",
-  //       [articleId.article_id]
-  //     );
-  //   } catch {
-  //     console.log(articleBeforeUpdate);
-  //     return Promise.reject({ status: 404, msg: "Article Not Found" });
-  //   }
-
-  console.log("32", articleBeforeUpdate.rows[0].votes);
+  if (articleBeforeUpdate.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: "Article Not Found" });
+  }
 
   const currentVotes = articleBeforeUpdate.rows[0].votes;
   const updatedVotes = currentVotes + newVote;
@@ -50,7 +41,7 @@ exports.updateArticleById = async (articleId, newVoteInfo) => {
     "UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *;",
     [updatedVotes, articleId.article_id]
   );
-  console.log(result);
+
   if (result.length < 1) {
     return Promise.reject({ status: 404, msg: "Article Not Found" });
   } else {
