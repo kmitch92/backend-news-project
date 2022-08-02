@@ -10,11 +10,12 @@ exports.fetchArticleById = async (id) => {
   const {
     rows: [result],
   } = await db.query(
-    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) AS comment_count 
+    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) AS comment_count
   FROM articles 
   LEFT JOIN comments ON articles.article_id = comments.article_id 
   WHERE articles.article_id=$1 
-  GROUP BY articles.article_id;`,
+  GROUP BY articles.article_id
+  ;`,
     [id.article_id]
   );
 
@@ -58,5 +59,18 @@ exports.updateArticleById = async (articleId, newVoteInfo) => {
 
 exports.fetchUsers = async () => {
   const { rows: result } = await db.query("SELECT * FROM users");
+  return result;
+};
+
+exports.fetchArticles = async () => {
+  const { rows: result } = await db.query(
+    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) AS comment_count FROM articles 
+    LEFT JOIN comments ON articles.article_id = comments.article_id 
+    GROUP BY articles.article_id
+    ORDER BY created_at DESC;`
+  );
+  result.forEach((article) => {
+    article.comment_count = parseInt(article.comment_count);
+  });
   return result;
 };

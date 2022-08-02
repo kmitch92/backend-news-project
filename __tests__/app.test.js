@@ -40,7 +40,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("should respond with a status code:200, and with an article object, containing the properties: author (matches the username from the users table), title, article_id, body, topic, created_at, votes and comment count", () => {
+  test("should respond with a status code:200, and with an article object, containing the properties: author (matches the username from the users table), title, article_id, body, topic, created_at, votes.", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -141,5 +141,37 @@ describe("GET /api/users", () => {
       expect(user.username).toEqual(expect.any(String));
       expect(user.avatar_url).toEqual(expect.any(String));
     });
+  });
+});
+
+describe.only("GET /api/articles", () => {
+  test("should respond with a status code:200, and with an array of article objects, each containing the properties: author, title, article_id, body, topic, created_at, votes and comment count", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        body.forEach((article) => {
+          expect(article).toEqual(expect.any(Object));
+          expect(article.title).toEqual(expect.any(String));
+          expect(article.article_id).toEqual(expect.any(Number));
+          expect(article.topic).toEqual(expect.any(String));
+          expect(article.author).toEqual(expect.any(String));
+          expect(article.body).toEqual(expect.any(String));
+          expect(article.created_at).toEqual(expect.any(String));
+          expect(article.votes).toEqual(expect.any(Number));
+          expect(article.comment_count).toEqual(expect.any(Number));
+        });
+      });
+  });
+  test("Articles should be ordered by dates in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted("created_at", {
+          descending: true,
+          coerce: true,
+        });
+      });
   });
 });
