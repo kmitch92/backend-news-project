@@ -159,6 +159,7 @@ describe.only("GET /api/articles", () => {
           expect(article.body).toEqual(expect.any(String));
           expect(article.created_at).toEqual(expect.any(String));
           expect(article.votes).toEqual(expect.any(Number));
+          expect(article.comment_count).toEqual(expect.any(Number));
         });
       });
   });

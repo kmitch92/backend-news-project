@@ -69,6 +69,8 @@ exports.fetchArticles = async () => {
     GROUP BY articles.article_id
     ORDER BY created_at DESC;`
   );
-
+  result.forEach((article) => {
+    article.comment_count = parseInt(article.comment_count);
+  });
   return result;
 };
