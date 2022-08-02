@@ -40,21 +40,32 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("should respond with a status code:200, and with an article object, containing the properties: author (matches the username from the users table), title, article_id, body, topic, created_at, votes", () => {
+  test("should respond with a status code:200, and with an article object, containing the properties: author (matches the username from the users table), title, article_id, body, topic, created_at, votes and comment count", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
         expect(body.article).toEqual(expect.any(Object));
-        expect(Object.keys(body.article)).toEqual([
-          "article_id",
-          "title",
-          "topic",
-          "author",
-          "body",
-          "created_at",
-          "votes",
-        ]);
+        expect(body.article.title).toEqual(expect.any(String));
+        expect(body.article.article_id).toEqual(expect.any(Number));
+        expect(body.article.topic).toEqual(expect.any(String));
+        expect(body.article.author).toEqual(expect.any(String));
+        expect(body.article.body).toEqual(expect.any(String));
+        expect(body.article.created_at).toEqual(expect.any(String));
+        expect(body.article.votes).toEqual(expect.any(Number));
+
+        ///Test Refactor Below
+        expect(body.article.comment_count).toEqual(11);
+        ////Test Refactor Above
+      });
+  });
+
+  test("additional comment-count refactor test", () => {
+    return request(app)
+      .get("/api/articles/9")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.comment_count).toEqual(2);
       });
   });
 
@@ -126,7 +137,6 @@ describe("PATCH /api/articles/:article_id", () => {
 describe("GET /api/users", () => {
   test("should respond with a status code:200 and a narray of user objects with the properties: username, name, avatar_url", async () => {
     const users = await request(app).get("/api/users");
-    console.log(users.body);
     expect(users.body).toEqual(expect.any(Array));
     expect(users.body).toHaveLength(4);
 

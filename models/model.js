@@ -12,9 +12,15 @@ exports.fetchArticleById = async (id) => {
     [id.article_id]
   );
 
+  const { rows: comments } = await db.query(
+    "SELECT * FROM comments WHERE article_id = $1",
+    [id.article_id]
+  );
+
   if (result.length < 1) {
     return Promise.reject({ status: 404, msg: "Article Not Found" });
   } else {
+    result[0].comment_count = comments.length;
     return result[0];
   }
 };
