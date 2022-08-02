@@ -122,3 +122,18 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  test("should respond with a status code:200 and a narray of user objects with the properties: username, name, avatar_url", async () => {
+    const users = await request(app).get("/api/users");
+    console.log(users.body);
+    expect(users.body).toEqual(expect.any(Array));
+    expect(users.body).toHaveLength(4);
+
+    users.body.forEach((user) => {
+      expect(user.name).toEqual(expect.any(String));
+      expect(user.username).toEqual(expect.any(String));
+      expect(user.avatar_url).toEqual(expect.any(String));
+    });
+  });
+});

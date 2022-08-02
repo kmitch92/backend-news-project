@@ -48,3 +48,8 @@ exports.updateArticleById = async (articleId, newVoteInfo) => {
     return result[0];
   }
 };
+
+exports.fetchUsers = async () => {
+  const { rows: result } = await db.query("SELECT * FROM users");
+  return result;
+};

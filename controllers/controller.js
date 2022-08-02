@@ -1,7 +1,9 @@
+const users = require("../db/data/test-data/users");
 const {
   fetchTopics,
   fetchArticleById,
   updateArticleById,
+  fetchUsers,
 } = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
@@ -30,6 +32,16 @@ exports.patchArticleById = (req, res, next) => {
   updateArticleById(articleId, req.body)
     .then((updatedArticle) => {
       res.status(200).send({ updatedArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getUsers = (req, res, next) => {
+  fetchUsers()
+    .then((users) => {
+      res.status(200).send(users);
     })
     .catch((err) => {
       next(err);
