@@ -53,14 +53,10 @@ describe("GET /api/articles/:article_id", () => {
         expect(body.article.body).toEqual(expect.any(String));
         expect(body.article.created_at).toEqual(expect.any(String));
         expect(body.article.votes).toEqual(expect.any(Number));
-
-        ///Test Refactor Below
-        expect(body.article.comment_count).toEqual(11);
-        ////Test Refactor Above
       });
   });
 
-  test("additional comment-count refactor test", () => {
+  test("comment-count refactor test", () => {
     return request(app)
       .get("/api/articles/9")
       .expect(200)
@@ -96,7 +92,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .send(voteIncrementer)
       .expect(200)
       .then(({ body }) => {
-        expect(body.updatedArticle.votes).toEqual(7);
+        expect(body.updatedArticle[0].votes).toEqual(7);
       });
   });
 
