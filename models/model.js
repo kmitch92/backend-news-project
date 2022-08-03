@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { checkEntryExists } = require("../db/seeds/utils");
 
 exports.fetchTopics = async () => {
   const { rows: result } = await db.query("SELECT * FROM topics;");
@@ -10,7 +11,7 @@ exports.fetchArticleById = async (id) => {
   const {
     rows: [result],
   } = await db.query(
-    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) AS comment_count
+    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) :: INT AS comment_count
   FROM articles 
   LEFT JOIN comments ON articles.article_id = comments.article_id 
   WHERE articles.article_id=$1 
@@ -22,7 +23,6 @@ exports.fetchArticleById = async (id) => {
   if (result === undefined) {
     return Promise.reject({ status: 404, msg: "Article Not Found" });
   } else {
-    result.comment_count = parseInt(result.comment_count);
     return result;
   }
 };
@@ -64,13 +64,27 @@ exports.fetchUsers = async () => {
 
 exports.fetchArticles = async () => {
   const { rows: result } = await db.query(
-    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) AS comment_count FROM articles 
+    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) :: INT AS comment_count FROM articles 
     LEFT JOIN comments ON articles.article_id = comments.article_id 
     GROUP BY articles.article_id
     ORDER BY created_at DESC;`
   );
-  result.forEach((article) => {
-    article.comment_count = parseInt(article.comment_count);
-  });
   return result;
+};
+
+exports.fetchCommentsById = async (articleId) => {
+  const { rows: result } = await db.query(
+    `SELECT comments.comment_id AS comment_id, comments.votes as votes, comments.created_at as created_at, comments.author AS author, comments.body AS body FROM comments WHERE article_id = $1`,
+    [articleId.article_id]
+  );
+
+  const articleCheck = await db.query(
+    "SELECT * FROM articles WHERE article_id = $1",
+    [articleId.article_id]
+  );
+
+  if (articleCheck.rows.length > 0) return result;
+  else {
+    return Promise.reject({ status: 404, msg: "Article Not Found" });
+  }
 };

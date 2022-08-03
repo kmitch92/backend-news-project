@@ -5,6 +5,7 @@ const {
   patchArticleById,
   getUsers,
   getArticles,
+  getCommentsById,
 } = require("./controllers/controller");
 
 const app = express();
@@ -20,6 +21,8 @@ app.patch("/api/articles/:article_id", patchArticleById);
 app.get("/api/users", getUsers);
 
 app.get("/api/articles", getArticles);
+
+app.get("/api/articles/:article_id/comments", getCommentsById);
 
 ////////// ENDPOINT ERROR
 

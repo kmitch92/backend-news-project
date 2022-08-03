@@ -144,7 +144,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe.only("GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("should respond with a status code:200, and with an array of article objects, each containing the properties: author, title, article_id, body, topic, created_at, votes and comment count", () => {
     return request(app)
       .get("/api/articles")
@@ -172,6 +172,52 @@ describe.only("GET /api/articles", () => {
           descending: true,
           coerce: true,
         });
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("should respond with a status code:200, and with an array of comment objects, for a successful request. Each comment object should have the properties of: comment_id, votes, created_at, author, body", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveLength(2);
+        body.forEach((comment) => {
+          expect(comment).toEqual(expect.any(Object));
+          expect(comment.comment_id).toEqual(expect.any(Number));
+          expect(comment.votes).toEqual(expect.any(Number));
+          expect(comment.created_at).toEqual(expect.any(String));
+          expect(comment.author).toEqual(expect.any(String));
+          expect(comment.body).toEqual(expect.any(String));
+        });
+      });
+  });
+  test("should respond with a status code:400 when passed an invalid article_id type ", () => {
+    return request(app)
+      .get("/api/articles/one/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid ID Type");
+      });
+  });
+
+  test("should respond with a status: 404 when passed a valid but non-existent id", () => {
+    return request(app)
+      .get("/api/articles/200/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article Not Found");
+      });
+  });
+
+  test("should respond with a status: 200 and an empty array when passed a valid and existing id that has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(expect.any(Array));
+        expect(body).toHaveLength(0);
       });
   });
 });
