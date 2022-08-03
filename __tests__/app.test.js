@@ -210,4 +210,14 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Article Not Found");
       });
   });
+
+  test("should respond with a status: 200 and an empty array when passed a valid and existing id that has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(expect.any(Array));
+        expect(body).toHaveLength(0);
+      });
+  });
 });
