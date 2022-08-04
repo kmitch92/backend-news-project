@@ -9,6 +9,7 @@ const {
   postComment,
   deleteCommentById,
 } = require('./controllers/controller');
+const endpoints = require('./endpoints.json');
 
 const app = express();
 
@@ -29,6 +30,10 @@ app.get('/api/articles/:article_id/comments', getCommentsById);
 app.post('/api/articles/:article_id/comments', postComment);
 
 app.delete('/api/comments/:comment_id', deleteCommentById);
+
+app.get('/api', (req, res) => {
+  res.status(200).send({ endpoints });
+});
 ////////// ENDPOINT ERROR
 
 app.all('/*', (req, res) =>

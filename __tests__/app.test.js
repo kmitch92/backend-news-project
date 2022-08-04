@@ -3,6 +3,7 @@ const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const app = require('../app');
 const data = require('../db/data/test-data/.');
+const endpoints = require('../endpoints.json');
 
 beforeEach(() => {
   return seed(data);
@@ -131,7 +132,7 @@ describe('PATCH /api/articles/:article_id', () => {
 });
 
 describe('GET /api/users', () => {
-  test('should respond with a status code:200 and a narray of user objects with the properties: username, name, avatar_url', async () => {
+  test('should respond with a status code:200 and an array of user objects with the properties: username, name, avatar_url', async () => {
     const users = await request(app).get('/api/users');
     expect(users.body).toEqual(expect.any(Array));
     expect(users.body).toHaveLength(4);
@@ -408,7 +409,7 @@ describe('GET /api/articles (queries)', () => {
       });
   });
 });
-
+////////////////////////////
 describe('DELETE /api/comments/:comment_id', () => {
   test('should return status code:204 and no content if the delete request is successful', () => {
     return request(app).delete('/api/comments/4').expect(204);
@@ -427,6 +428,17 @@ describe('DELETE /api/comments/:comment_id', () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe('Comment Not Found');
+      });
+  });
+});
+
+describe('GET /api', () => {
+  test('should respond with a status code:200 and a JSON object containing all of the possible endpoints for the app', () => {
+    return request(app)
+      .get('/api')
+      .expect(200)
+      .then((response) => {
+        expect(response.body.endpoints).toEqual(endpoints);
       });
   });
 });
