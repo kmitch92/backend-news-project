@@ -183,14 +183,14 @@ exports.fetchArticlesQuery = async (reqQuery) => {
   return result;
 };
 
-exports.removeCommentById = async (commentId) => {
-  if (Number(commentId.comment_id).isNaN() === true) {
+exports.removeCommentById = async (comment_id) => {
+  if (isNaN(Number(comment_id))) {
     return Promise.reject({ status: 400, msg: 'Invalid ID Type' });
   }
 
   const { rows: result } = await db.query(
     'DELETE FROM comments WHERE comment_id = $1 RETURNING *;',
-    [commentId.comment_id]
+    [comment_id]
   );
 
   if (result.length < 1) {
