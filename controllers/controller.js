@@ -7,6 +7,7 @@ const {
   fetchArticles,
   fetchCommentsById,
   addComment,
+  fetchArticlesQuery,
 } = require('../models/model');
 
 exports.getTopics = (req, res, next) => {
@@ -52,13 +53,22 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  fetchArticles()
-    .then((articles) => {
-      res.status(200).send(articles);
-    })
-    .catch((err) => {
-      next(err);
-    });
+  if (Object.keys(req.query).length > 0)
+    fetchArticlesQuery(req.query)
+      .then((articles) => {
+        res.status(200).send(articles);
+      })
+      .catch((err) => {
+        next(err);
+      });
+  else
+    fetchArticles()
+      .then((articles) => {
+        res.status(200).send(articles);
+      })
+      .catch((err) => {
+        next(err);
+      });
 };
 
 exports.getCommentsById = (req, res, next) => {

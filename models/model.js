@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const format = require('pg-format');
 
 exports.fetchTopics = async () => {
   const { rows: result } = await db.query('SELECT * FROM topics;');
@@ -63,7 +64,7 @@ exports.fetchUsers = async () => {
 
 exports.fetchArticles = async () => {
   const { rows: result } = await db.query(
-    `SELECT articles.article_id AS article_id, articles.author AS author, title, articles.body AS body, topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) :: INT AS comment_count FROM articles 
+    `SELECT articles.article_id AS article_id, articles.author AS author, articles.title AS title, articles.body AS body, articles.topic AS topic, articles.created_at AS created_at, articles.votes AS votes, COUNT(comment_id) :: INT AS comment_count FROM articles 
     LEFT JOIN comments ON articles.article_id = comments.article_id 
     GROUP BY articles.article_id
     ORDER BY created_at DESC;`
@@ -114,4 +115,70 @@ exports.addComment = async (id, newComment) => {
 
     return result;
   }
+};
+
+exports.fetchArticlesQuery = async (reqQuery) => {
+  const { sort_by, order, topic } = reqQuery;
+
+  const validSorts = [
+    'title',
+    'topic',
+    'author',
+    'body',
+    'created_at',
+    'votes',
+    'article_id',
+    'comment_count',
+  ];
+
+  if (sort_by && !validSorts.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: 'Invalid Sort Request' });
+  }
+  if (topic) {
+    const topicCheck = await db.query('SELECT * FROM topics WHERE slug=$1;', [
+      topic,
+    ]);
+    if (topicCheck.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: 'Topic Not Found' });
+    }
+  }
+
+  if (
+    order !== undefined &&
+    order.toUpperCase() !== 'ASC' &&
+    order.toUpperCase() != 'DESC'
+  ) {
+    return Promise.reject({ status: 400, msg: 'Invalid Order Value' });
+  }
+
+  let sql = `SELECT articles.article_id AS article_id, 
+  articles.author AS author,
+   articles.title AS title, 
+   articles.body AS body, 
+   articles.topic AS topic, 
+   articles.created_at AS created_at, 
+   articles.votes AS votes, 
+  COUNT(comment_id) :: INT AS comment_count FROM articles 
+  LEFT JOIN comments ON articles.article_id = comments.article_id `;
+
+  if (topic) {
+    sql += `WHERE articles.topic = '%s' `;
+  }
+
+  sql += 'GROUP BY articles.article_id ';
+
+  if (sort_by && order) {
+    sql += `ORDER BY %s %s;`;
+  } else if (order) {
+    sql += `ORDER BY created_at %s;`;
+  } else if (sort_by) {
+    sql += `ORDER BY %s DESC;`;
+  } else {
+    sql += `ORDER BY created_at DESC;`;
+  }
+
+  const sqlRequest = format(sql, topic, sort_by, order);
+
+  const { rows: result } = await db.query(sqlRequest);
+  return result;
 };

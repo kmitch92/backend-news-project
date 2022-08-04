@@ -239,16 +239,16 @@ describe('POST /api/articles/:article_id/comments', () => {
       .then(
         ({
           body: {
-            returnComment: [body],
+            returnComment: [comment],
           },
         }) => {
-          expect(body).toEqual(expect.any(Object));
-          expect(body.comment_id).toEqual(expect.any(Number));
-          expect(body.votes).toEqual(0);
-          expect(body.author).toEqual('icellusedkars');
-          expect(body.body).toEqual('comment for test');
+          expect(comment).toEqual(expect.any(Object));
+          expect(comment.comment_id).toEqual(expect.any(Number));
+          expect(comment.votes).toEqual(0);
+          expect(comment.author).toEqual('icellusedkars');
+          expect(comment.body).toEqual('comment for test');
 
-          const bodyDate = new Date(body.created_at);
+          const bodyDate = new Date(comment.created_at);
           const bodyDateInSeconds = Math.floor(bodyDate.getTime());
 
           const date2 = new Date(Date.now());
@@ -313,6 +313,89 @@ describe('POST /api/articles/:article_id/comments', () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe('Username Not Found');
+      });
+  });
+});
+
+describe('GET /api/articles (queries)', () => {
+  test('should accept the following endpoint queries: sort_by (sorts articles by any valid column), order (can be set to asc or desc - desc by default - for the direction of the sorting) and topic, which filters the articles by the specified topic value', () => {
+    const top = 'mitch';
+    const sort = 'author';
+
+    return request(app)
+      .get(`/api/articles/?sort_by=${sort}&topic=${top}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSortedBy(sort, { descending: true });
+        body.forEach((article) => {
+          expect(article.topic).toEqual(top);
+          expect(article.title).toEqual(expect.any(String));
+          expect(article.article_id).toEqual(expect.any(Number));
+          expect(article.author).toEqual(expect.any(String));
+          expect(article.body).toEqual(expect.any(String));
+          expect(article.created_at).toEqual(expect.any(String));
+          expect(article.votes).toEqual(expect.any(Number));
+          expect(article.comment_count).toEqual(expect.any(Number));
+        });
+      });
+  });
+
+  test('further testing of the above (different parameters, manual value for order)', () => {
+    const top = 'mitch';
+    const sort = 'votes';
+    const order = 'asc';
+    return request(app)
+      .get(`/api/articles/?sort_by=${sort}&order=${order}&topic=${top}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSortedBy(sort, { descending: false });
+        body.forEach((article) => {
+          expect(article.topic).toEqual(top);
+          expect(article.title).toEqual(expect.any(String));
+          expect(article.article_id).toEqual(expect.any(Number));
+          expect(article.author).toEqual(expect.any(String));
+          expect(article.body).toEqual(expect.any(String));
+          expect(article.created_at).toEqual(expect.any(String));
+          expect(article.votes).toEqual(expect.any(Number));
+          expect(article.comment_count).toEqual(expect.any(Number));
+        });
+      });
+  });
+
+  test('should return status code:200 and a list of articles filtered by only a given topic', () => {
+    return request(app)
+      .get('/api/articles?topic=cats')
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(1);
+        body.forEach((article) => {
+          expect(article.topic).toEqual('cats');
+        });
+      });
+  });
+  test("Should return a status code:400 and error if sort_by column doesn't exist", () => {
+    return request(app)
+      .get('/api/articles?sort_by=tittle')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Invalid Sort Request');
+      });
+  });
+  test('should return status code:404 and error if topic does not exist', () => {
+    return request(app)
+      .get('/api/articles?topic=mitchy')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Topic Not Found');
+      });
+  });
+
+  test('should return a status code:400 and an error if order value != asc/desc', () => {
+    return request(app)
+      .get('/api/articles?order=dess')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Invalid Order Value');
       });
   });
 });
