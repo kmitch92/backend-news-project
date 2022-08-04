@@ -398,4 +398,13 @@ describe('GET /api/articles (queries)', () => {
         expect(body.msg).toBe('Invalid Order Value');
       });
   });
+  test('should return status code:200 and an empty array for an existant topic with no articles', () => {
+    return request(app)
+      .get('/api/articles?topic=paper')
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(expect.any(Array));
+        expect(body).toHaveLength(0);
+      });
+  });
 });
