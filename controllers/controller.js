@@ -1,4 +1,4 @@
-const users = require("../db/data/test-data/users");
+const users = require('../db/data/test-data/users');
 const {
   fetchTopics,
   fetchArticleById,
@@ -6,7 +6,8 @@ const {
   fetchUsers,
   fetchArticles,
   fetchCommentsById,
-} = require("../models/model");
+  addComment,
+} = require('../models/model');
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -66,6 +67,19 @@ exports.getCommentsById = (req, res, next) => {
   fetchCommentsById(articleId)
     .then((comments) => {
       res.status(200).send(comments);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postComment = (req, res, next) => {
+  const newComment = req.body;
+  const id = req.params.article_id;
+
+  addComment(id, newComment)
+    .then((returnComment) => {
+      res.status(201).send({ returnComment });
     })
     .catch((err) => {
       next(err);

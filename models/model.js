@@ -1,8 +1,7 @@
-const db = require("../db/connection");
-const { checkEntryExists } = require("../db/seeds/utils");
+const db = require('../db/connection');
 
 exports.fetchTopics = async () => {
-  const { rows: result } = await db.query("SELECT * FROM topics;");
+  const { rows: result } = await db.query('SELECT * FROM topics;');
 
   return result;
 };
@@ -21,44 +20,44 @@ exports.fetchArticleById = async (id) => {
   );
 
   if (result === undefined) {
-    return Promise.reject({ status: 404, msg: "Article Not Found" });
+    return Promise.reject({ status: 404, msg: 'Article Not Found' });
   } else {
     return result;
   }
 };
 
 exports.updateArticleById = async (articleId, newVoteInfo) => {
-  if (!newVoteInfo.hasOwnProperty("inc_votes")) {
-    return Promise.reject({ status: 400, msg: "Invalid Request Body" });
+  if (!newVoteInfo.hasOwnProperty('inc_votes')) {
+    return Promise.reject({ status: 400, msg: 'Invalid Request Body' });
   }
   const newVote = newVoteInfo.inc_votes;
 
   const articleBeforeUpdate = await db.query(
-    "SELECT * FROM articles WHERE article_id = $1;",
+    'SELECT * FROM articles WHERE article_id = $1;',
     [articleId.article_id]
   );
 
   if (articleBeforeUpdate.rows.length === 0) {
-    return Promise.reject({ status: 404, msg: "Article Not Found" });
+    return Promise.reject({ status: 404, msg: 'Article Not Found' });
   }
 
   const currentVotes = articleBeforeUpdate.rows[0].votes;
   const updatedVotes = currentVotes + newVote;
 
   const { rows: result } = await db.query(
-    "UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *;",
+    'UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *;',
     [updatedVotes, articleId.article_id]
   );
 
   if (result.length < 1) {
-    return Promise.reject({ status: 404, msg: "Article Not Found" });
+    return Promise.reject({ status: 404, msg: 'Article Not Found' });
   } else {
     return result;
   }
 };
 
 exports.fetchUsers = async () => {
-  const { rows: result } = await db.query("SELECT * FROM users");
+  const { rows: result } = await db.query('SELECT * FROM users');
   return result;
 };
 
@@ -79,12 +78,40 @@ exports.fetchCommentsById = async (articleId) => {
   );
 
   const articleCheck = await db.query(
-    "SELECT * FROM articles WHERE article_id = $1",
+    'SELECT * FROM articles WHERE article_id = $1',
     [articleId.article_id]
   );
 
   if (articleCheck.rows.length > 0) return result;
   else {
-    return Promise.reject({ status: 404, msg: "Article Not Found" });
+    return Promise.reject({ status: 404, msg: 'Article Not Found' });
+  }
+};
+
+exports.addComment = async (id, newComment) => {
+  if (
+    !newComment.hasOwnProperty('username') ||
+    !newComment.hasOwnProperty('body')
+  ) {
+    return Promise.reject({ status: 400, msg: 'Invalid Request Body' });
+  }
+
+  const { username, body } = newComment;
+
+  const articleCheck = await db.query(
+    'SELECT * FROM articles WHERE article_id = $1',
+    [id]
+  );
+  if (articleCheck.rows === undefined)
+    return Promise.reject({ status: 400, msg: 'Invalid ID Type' });
+  else if (articleCheck.rows.length === 0)
+    return Promise.reject({ status: 404, msg: 'Article Not Found' });
+  else {
+    const { rows: result } = await db.query(
+      'INSERT INTO comments (body, author, article_id, votes, created_at) VALUES ($1, $2, $3, 0, NOW()) RETURNING *;',
+      [body, username, id]
+    );
+
+    return result;
   }
 };

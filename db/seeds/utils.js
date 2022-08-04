@@ -20,13 +20,3 @@ exports.formatComments = (comments, idLookup) => {
     };
   });
 };
-
-// exports.checkEntryExists = async (db, table, column, id) => {
-//   const dbOutput  = await db.query(`SELECT * FROM $1 WHERE $2 = $3`, [
-//     table,
-//     column,
-//     id,
-//   ]);
-//   if (dbOutput.rows.length === 0) return false;
-//   else return true;
-// };
