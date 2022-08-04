@@ -1,8 +1,8 @@
-const request = require("supertest");
-const db = require("../db/connection");
-const seed = require("../db/seeds/seed");
-const app = require("../app");
-const data = require("../db/data/test-data/.");
+const request = require('supertest');
+const db = require('../db/connection');
+const seed = require('../db/seeds/seed');
+const app = require('../app');
+const data = require('../db/data/test-data/.');
 
 beforeEach(() => {
   return seed(data);
@@ -12,37 +12,37 @@ afterAll(() => {
   return db.end();
 });
 
-describe("ALL /*", () => {
-  test("status: 404 for endpoint not found", () => {
+describe('ALL /*', () => {
+  test('status: 404 for endpoint not found', () => {
     return request(app)
-      .get("/non_existent_endpoint")
+      .get('/non_existent_endpoint')
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Endpoint Not Found");
+        expect(body.msg).toBe('Endpoint Not Found');
       });
   });
 });
 
-describe("GET /api/topics", () => {
+describe('GET /api/topics', () => {
   test("should respond with status code:200, and with an array of all topics in the topics table of the database, with each item containing a 'slug' and a 'description' property.", () => {
     return request(app)
-      .get("/api/topics")
+      .get('/api/topics')
       .expect(200)
       .then((response) => {
         expect(response.body.topics).toEqual(expect.any(Array));
         expect((response.body.topics.length = 3));
         expect(Object.keys(response.body.topics[0])).toEqual([
-          "slug",
-          "description",
+          'slug',
+          'description',
         ]);
       });
   });
 });
 
-describe("GET /api/articles/:article_id", () => {
-  test("should respond with a status code:200, and with an article object, containing the properties: author (matches the username from the users table), title, article_id, body, topic, created_at, votes.", () => {
+describe('GET /api/articles/:article_id', () => {
+  test('should respond with a status code:200, and with an article object, containing the properties: author (matches the username from the users table), title, article_id, body, topic, created_at, votes.', () => {
     return request(app)
-      .get("/api/articles/1")
+      .get('/api/articles/1')
       .expect(200)
       .then(({ body }) => {
         expect(body.article).toEqual(expect.any(Object));
@@ -56,39 +56,39 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("comment-count refactor test", () => {
+  test('comment-count refactor test', () => {
     return request(app)
-      .get("/api/articles/9")
+      .get('/api/articles/9')
       .expect(200)
       .then(({ body }) => {
         expect(body.article.comment_count).toEqual(2);
       });
   });
 
-  test("should respond with a status code:400 when passed an invalid article_id type ", () => {
+  test('should respond with a status code:400 when passed an invalid article_id type ', () => {
     return request(app)
-      .get("/api/articles/one")
+      .get('/api/articles/one')
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid ID Type");
+        expect(body.msg).toBe('Invalid ID Type');
       });
   });
 
-  test("should respond with a status: 404 when passed a valid but non-existent id", () => {
+  test('should respond with a status: 404 when passed a valid but non-existent id', () => {
     return request(app)
-      .get("/api/articles/200")
+      .get('/api/articles/200')
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article Not Found");
+        expect(body.msg).toBe('Article Not Found');
       });
   });
 });
 
-describe("PATCH /api/articles/:article_id", () => {
-  test("should respond with status code:200 and the updated article when a successful patch request is made. This endpoint increments the votes on the article: the votes should be incremented by the passed amount", () => {
+describe('PATCH /api/articles/:article_id', () => {
+  test('should respond with status code:200 and the updated article when a successful patch request is made. This endpoint increments the votes on the article: the votes should be incremented by the passed amount', () => {
     const voteIncrementer = { inc_votes: 7 };
     return request(app)
-      .patch("/api/articles/2")
+      .patch('/api/articles/2')
       .send(voteIncrementer)
       .expect(200)
       .then(({ body }) => {
@@ -96,43 +96,43 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  test("should respond with a status code:400 when passed an invalid article_id type ", () => {
+  test('should respond with a status code:400 when passed an invalid article_id type ', () => {
     const voteIncrementer = { inc_votes: 7 };
     return request(app)
-      .patch("/api/articles/two")
+      .patch('/api/articles/two')
       .send(voteIncrementer)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid ID Type");
+        expect(body.msg).toBe('Invalid ID Type');
       });
   });
 
-  test("should respond with a status code:404 when passed a valid but non-existent id", () => {
+  test('should respond with a status code:404 when passed a valid but non-existent id', () => {
     const voteIncrementer = { inc_votes: 7 };
     return request(app)
-      .patch("/api/articles/200")
+      .patch('/api/articles/200')
       .send(voteIncrementer)
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article Not Found");
+        expect(body.msg).toBe('Article Not Found');
       });
   });
 
-  test("should respond with a status code:400 if passed an incorrect argument object", () => {
+  test('should respond with a status code:400 if passed an incorrect argument object', () => {
     const voteIncrementer = { fail_inc_votes: 7 };
     return request(app)
-      .patch("/api/articles/2")
+      .patch('/api/articles/2')
       .send(voteIncrementer)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid Request Body");
+        expect(body.msg).toBe('Invalid Request Body');
       });
   });
 });
 
-describe("GET /api/users", () => {
-  test("should respond with a status code:200 and a narray of user objects with the properties: username, name, avatar_url", async () => {
-    const users = await request(app).get("/api/users");
+describe('GET /api/users', () => {
+  test('should respond with a status code:200 and a narray of user objects with the properties: username, name, avatar_url', async () => {
+    const users = await request(app).get('/api/users');
     expect(users.body).toEqual(expect.any(Array));
     expect(users.body).toHaveLength(4);
 
@@ -144,10 +144,10 @@ describe("GET /api/users", () => {
   });
 });
 
-describe("GET /api/articles", () => {
-  test("should respond with a status code:200, and with an array of article objects, each containing the properties: author, title, article_id, body, topic, created_at, votes and comment count", () => {
+describe('GET /api/articles', () => {
+  test('should respond with a status code:200, and with an array of article objects, each containing the properties: author, title, article_id, body, topic, created_at, votes and comment count', () => {
     return request(app)
-      .get("/api/articles")
+      .get('/api/articles')
       .expect(200)
       .then(({ body }) => {
         body.forEach((article) => {
@@ -163,12 +163,12 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("Articles should be ordered by dates in descending order", () => {
+  test('Articles should be ordered by dates in descending order', () => {
     return request(app)
-      .get("/api/articles")
+      .get('/api/articles')
       .expect(200)
       .then(({ body }) => {
-        expect(body).toBeSorted("created_at", {
+        expect(body).toBeSorted('created_at', {
           descending: true,
           coerce: true,
         });
@@ -176,10 +176,10 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe("GET /api/articles/:article_id/comments", () => {
-  test("should respond with a status code:200, and with an array of comment objects, for a successful request. Each comment object should have the properties of: comment_id, votes, created_at, author, body", () => {
+describe('GET /api/articles/:article_id/comments', () => {
+  test('should respond with a status code:200, and with an array of comment objects, for a successful request. Each comment object should have the properties of: comment_id, votes, created_at, author, body', () => {
     return request(app)
-      .get("/api/articles/9/comments")
+      .get('/api/articles/9/comments')
       .expect(200)
       .then(({ body }) => {
         expect(body).toHaveLength(2);
@@ -193,31 +193,126 @@ describe("GET /api/articles/:article_id/comments", () => {
         });
       });
   });
-  test("should respond with a status code:400 when passed an invalid article_id type ", () => {
+  test('should respond with a status code:400 when passed an invalid article_id type ', () => {
     return request(app)
-      .get("/api/articles/one/comments")
+      .get('/api/articles/one/comments')
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid ID Type");
+        expect(body.msg).toBe('Invalid ID Type');
       });
   });
 
-  test("should respond with a status: 404 when passed a valid but non-existent id", () => {
+  test('should respond with a status: 404 when passed a valid but non-existent id', () => {
     return request(app)
-      .get("/api/articles/200/comments")
+      .get('/api/articles/200/comments')
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article Not Found");
+        expect(body.msg).toBe('Article Not Found');
       });
   });
 
-  test("should respond with a status: 200 and an empty array when passed a valid and existing id that has no comments", () => {
+  test('should respond with a status: 200 and an empty array when passed a valid and existing id that has no comments', () => {
     return request(app)
-      .get("/api/articles/2/comments")
+      .get('/api/articles/2/comments')
       .expect(200)
       .then(({ body }) => {
         expect(body).toEqual(expect.any(Array));
         expect(body).toHaveLength(0);
+      });
+  });
+});
+
+describe('POST /api/articles/:article_id/comments', () => {
+  test('should respond with a status code:201 and a returned comment object, with the fields: comment_id, body, author, article_id, created_at.', () => {
+    const date1 = new Date(Date.now());
+    const date1InSeconds = Math.floor(date1.getTime());
+
+    const postableComment = {
+      username: 'icellusedkars',
+      body: 'comment for test',
+    };
+
+    return request(app)
+      .post('/api/articles/2/comments')
+      .send(postableComment)
+      .expect(201)
+      .then(
+        ({
+          body: {
+            returnComment: [body],
+          },
+        }) => {
+          expect(body).toEqual(expect.any(Object));
+          expect(body.comment_id).toEqual(expect.any(Number));
+          expect(body.votes).toEqual(0);
+          expect(body.author).toEqual('icellusedkars');
+          expect(body.body).toEqual('comment for test');
+
+          const bodyDate = new Date(body.created_at);
+          const bodyDateInSeconds = Math.floor(bodyDate.getTime());
+
+          const date2 = new Date(Date.now());
+          const date2InSeconds = Math.floor(date2.getTime());
+
+          expect(bodyDateInSeconds).toBeGreaterThan(date1InSeconds);
+          expect(bodyDateInSeconds).toBeLessThan(date2InSeconds);
+        }
+      );
+  });
+
+  test('should respond with a status code:400 when passed an invalid article_id type ', () => {
+    const postableComment = {
+      username: 'icellusedkars',
+      body: 'comment for test',
+    };
+    return request(app)
+      .post('/api/articles/two/comments')
+      .send(postableComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Invalid ID Type');
+      });
+  });
+
+  test('should respond with a status code:404 when passed a valid but non-existent id', () => {
+    const postableComment = {
+      username: 'icellusedkars',
+      body: 'comment for test',
+    };
+    return request(app)
+      .post('/api/articles/200/comments')
+      .send(postableComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Article Not Found');
+      });
+  });
+
+  test('should respond with a status code:400 if passed an incorrect argument object', () => {
+    const postableComment = {
+      uselname: 'icellusedkars',
+      bodeh: 'comment for test',
+    };
+    return request(app)
+      .post('/api/articles/2/comments')
+      .send(postableComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Invalid Request Body');
+      });
+  });
+
+  test('should respond with a status code:404 if passed an argument object containing a non-existant username', () => {
+    const postableComment = {
+      username: 'Kiel',
+      body: 'comment for test',
+    };
+    return request(app)
+      .post('/api/articles/2/comments')
+      .send(postableComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Username Not Found');
       });
   });
 });
