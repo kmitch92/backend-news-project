@@ -408,3 +408,25 @@ describe('GET /api/articles (queries)', () => {
       });
   });
 });
+
+describe('DELETE /api/comments/:comment_id', () => {
+  test('should return status code:204 and no content if the delete request is successful', () => {
+    return request(app).delete('/api/comments/4').expect(204);
+  });
+  test('should return a status code:400 if the comment_id is of invalid type', () => {
+    return request(app)
+      .delete('/api/comments/four')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Invalid ID Type');
+      });
+  });
+  test('should return a status code: 404 if the comment_id does not reference a valid comment object', () => {
+    return request(app)
+      .delete('/api/comments/400')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Comment Not Found');
+      });
+  });
+});

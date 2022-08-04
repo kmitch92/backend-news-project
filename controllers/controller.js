@@ -98,8 +98,8 @@ exports.postComment = (req, res, next) => {
 };
 
 exports.deleteCommentById = (req, res, next) => {
-  const commentId = req.params;
-  removeCommentById(commentId)
+  const { comment_id } = req.params;
+  removeCommentById(comment_id)
     .then(() => {
       res.status(204).send();
     })
