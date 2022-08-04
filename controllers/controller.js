@@ -7,6 +7,8 @@ const {
   fetchArticles,
   fetchCommentsById,
   addComment,
+  fetchArticlesQuery,
+  removeCommentById,
 } = require('../models/model');
 
 exports.getTopics = (req, res, next) => {
@@ -52,13 +54,22 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  fetchArticles()
-    .then((articles) => {
-      res.status(200).send(articles);
-    })
-    .catch((err) => {
-      next(err);
-    });
+  if (Object.keys(req.query).length > 0)
+    fetchArticlesQuery(req.query)
+      .then((articles) => {
+        res.status(200).send(articles);
+      })
+      .catch((err) => {
+        next(err);
+      });
+  else
+    fetchArticles()
+      .then((articles) => {
+        res.status(200).send(articles);
+      })
+      .catch((err) => {
+        next(err);
+      });
 };
 
 exports.getCommentsById = (req, res, next) => {
@@ -80,6 +91,17 @@ exports.postComment = (req, res, next) => {
   addComment(id, newComment)
     .then((returnComment) => {
       res.status(201).send({ returnComment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.deleteCommentById = (req, res, next) => {
+  const commentId = req.params;
+  removeCommentById(commentId)
+    .then(() => {
+      res.status(204).send();
     })
     .catch((err) => {
       next(err);

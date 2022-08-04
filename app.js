@@ -7,6 +7,7 @@ const {
   getArticles,
   getCommentsById,
   postComment,
+  deleteCommentById,
 } = require('./controllers/controller');
 
 const app = express();
@@ -27,6 +28,7 @@ app.get('/api/articles/:article_id/comments', getCommentsById);
 
 app.post('/api/articles/:article_id/comments', postComment);
 
+app.delete('/api/comments/:comment_id', deleteCommentById);
 ////////// ENDPOINT ERROR
 
 app.all('/*', (req, res) =>
