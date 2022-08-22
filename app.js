@@ -9,9 +9,14 @@ const {
   postComment,
   deleteCommentById,
 } = require('./controllers/controller');
+
 const endpoints = require('./endpoints.json');
 
+const cors = require("cors");
+
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
