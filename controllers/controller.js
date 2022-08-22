@@ -1,8 +1,15 @@
+const users = require('../db/data/test-data/users');
 const {
   fetchTopics,
   fetchArticleById,
   updateArticleById,
-} = require("../models/model");
+  fetchUsers,
+  fetchArticles,
+  fetchCommentsById,
+  addComment,
+  fetchArticlesQuery,
+  removeCommentById,
+} = require('../models/model');
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -29,8 +36,72 @@ exports.patchArticleById = (req, res, next) => {
   const articleId = req.params;
   updateArticleById(articleId, req.body)
     .then((updatedArticle) => {
-      console.log(updatedArticle, "returned to  controller");
       res.status(200).send({ updatedArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getUsers = (req, res, next) => {
+  fetchUsers()
+    .then((users) => {
+      res.status(200).send(users);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getArticles = (req, res, next) => {
+  if (Object.keys(req.query).length > 0)
+    fetchArticlesQuery(req.query)
+      .then((articles) => {
+        res.status(200).send(articles);
+      })
+      .catch((err) => {
+        next(err);
+      });
+  else
+    fetchArticles()
+      .then((articles) => {
+        res.status(200).send(articles);
+      })
+      .catch((err) => {
+        next(err);
+      });
+};
+
+exports.getCommentsById = (req, res, next) => {
+  const articleId = req.params;
+
+  fetchCommentsById(articleId)
+    .then((comments) => {
+      res.status(200).send(comments);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postComment = (req, res, next) => {
+  const newComment = req.body;
+  const id = req.params.article_id;
+
+  addComment(id, newComment)
+    .then((returnComment) => {
+      res.status(201).send({ returnComment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+  removeCommentById(comment_id)
+    .then(() => {
+      res.status(204).send();
     })
     .catch((err) => {
       next(err);
