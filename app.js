@@ -4,8 +4,11 @@ const {
   getArticleById,
   patchArticleById,
 } = require("./controllers/controller");
+const cors = require("cors");
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
